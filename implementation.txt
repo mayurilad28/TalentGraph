@@ -1,0 +1,1277 @@
+# WEXA AI — CognoDB Take-Home Assignment
+
+## Job & Skill Recommendation Graph
+
+Build a production-quality full-stack web application called **TalentGraph** for the Wexa AI CognoDB take-home assignment.
+
+The application is a **Job & Skill Recommendation Graph** backed by **CognoDB**, using the official Neo4j JavaScript driver and openCypher.
+
+The goal is to demonstrate:
+
+* Thoughtful graph data modeling
+* Multi-hop graph traversal
+* Relationship-based recommendations
+* Clean frontend architecture
+* Professional UI/UX
+* Parameterized Cypher queries
+* Error handling
+* Seed data
+* Maintainable code structure
+* AI-assisted development that can be explained clearly in an interview
+
+Do not build a generic CRUD application. The graph relationships must be central to the application's functionality.
+
+---
+
+# 1. Technology Stack
+
+Use the following stack:
+
+## Frontend
+
+* React
+* TypeScript
+* Vite
+* Tailwind CSS
+* React Router
+* TanStack Query
+* Lucide React icons
+
+## Backend
+
+* Node.js
+* Express
+* TypeScript
+* Official Neo4j JavaScript driver
+
+## Database
+
+* CognoDB Cloud
+* openCypher
+* Bolt protocol
+* Official Neo4j JavaScript driver
+
+## Validation
+
+* Zod
+
+## Deployment
+
+Structure the project so that:
+
+* Frontend can be deployed to Vercel
+* Backend can be deployed to Render/Railway or another free Node-compatible platform
+
+Do not introduce unnecessary libraries.
+
+---
+
+# 2. Core Product Concept
+
+Create a platform that helps recruiters or hiring managers discover suitable jobs/candidates based on connected skills, projects and technologies.
+
+The application should demonstrate how graph traversal can answer questions such as:
+
+1. Which jobs match a candidate's skills?
+2. Which skills are missing for a particular job?
+3. Which technologies has a candidate worked with indirectly through projects?
+4. Which candidates are suitable for a particular job?
+5. Which related skills could help a candidate qualify for another job?
+6. What connections exist between a candidate, their projects, technologies and available jobs?
+
+The application should feel like a small but polished **talent intelligence platform**, not just a database demo.
+
+---
+
+# 3. Graph Data Model
+
+Use the following graph model.
+
+## Nodes
+
+### Candidate
+
+Properties:
+
+```text
+id
+name
+title
+location
+experienceYears
+summary
+avatar
+```
+
+### Skill
+
+Properties:
+
+```text
+id
+name
+category
+```
+
+Examples:
+
+```text
+React
+TypeScript
+JavaScript
+Angular
+Redux
+GraphQL
+Node.js
+HTML
+CSS
+Tailwind CSS
+REST API
+Testing
+Accessibility
+```
+
+### Project
+
+Properties:
+
+```text
+id
+name
+description
+domain
+year
+```
+
+### Technology
+
+Properties:
+
+```text
+id
+name
+category
+```
+
+Examples:
+
+```text
+React
+TypeScript
+Node.js
+PostgreSQL
+Redis
+GraphQL
+AWS
+Docker
+```
+
+### Job
+
+Properties:
+
+```text
+id
+title
+description
+location
+employmentType
+experienceMin
+experienceMax
+```
+
+### Company
+
+Properties:
+
+```text
+id
+name
+industry
+logo
+```
+
+---
+
+# 4. Relationships
+
+Use typed relationships.
+
+```text
+Candidate -[:HAS_SKILL]-> Skill
+
+Candidate -[:WORKED_ON]-> Project
+
+Project -[:USES]-> Technology
+
+Job -[:REQUIRES]-> Skill
+
+Job -[:POSTED_BY]-> Company
+
+Skill -[:RELATED_TO]-> Skill
+```
+
+Relationship properties may be added where useful.
+
+For example:
+
+```text
+WORKED_ON {
+  role,
+  durationMonths
+}
+```
+
+and:
+
+```text
+REQUIRES {
+  importance
+}
+```
+
+---
+
+# 5. Why Graph Database?
+
+The README must contain a clear section titled:
+
+## Why a graph database?
+
+Explain that the core problem is relationship discovery rather than simple record retrieval.
+
+Example explanation:
+
+Candidates are connected to skills, projects and technologies, while jobs are connected to required skills and companies. A graph database allows the application to traverse these relationships naturally across multiple hops.
+
+For example:
+
+```text
+Candidate
+   ↓ HAS_SKILL
+Skill
+   ↓ REQUIRED_BY
+Job
+   ↓ POSTED_BY
+Company
+```
+
+or:
+
+```text
+Candidate
+   ↓ WORKED_ON
+Project
+   ↓ USES
+Technology
+```
+
+Explain that a relational database could represent the same data, but relationship-heavy queries would require multiple joins and become increasingly cumbersome as the relationship model grows.
+
+Do not claim that graph databases are always better than relational databases.
+
+Explain that CognoDB is specifically valuable here because the application's primary questions involve connected entities and multi-hop traversal.
+
+---
+
+# 6. Main Application Screens
+
+Create the following screens.
+
+## Screen 1 — Dashboard
+
+Route:
+
+```text
+/
+```
+
+Show:
+
+* Total candidates
+* Total jobs
+* Total skills
+* Total companies
+* Top matching opportunities
+* Recently added jobs
+* Quick navigation
+
+Example:
+
+```text
+TalentGraph
+
+Talent intelligence powered by relationships
+
+Candidates       Jobs        Skills       Companies
+   24              18          35             8
+
+Top Opportunities
+
+Senior React Developer       92% Match
+Frontend Architect            87% Match
+UI Engineer                   81% Match
+```
+
+Make the dashboard visually polished.
+
+---
+
+# 7. Screen 2 — Candidate Explorer
+
+Route:
+
+```text
+/candidates
+```
+
+Display candidate cards/table.
+
+Each candidate should show:
+
+* Name
+* Title
+* Experience
+* Location
+* Main skills
+* View profile button
+
+Include:
+
+* Search
+* Skill filter
+* Loading state
+* Empty state
+
+---
+
+# 8. Screen 3 — Candidate Profile
+
+Route:
+
+```text
+/candidates/:id
+```
+
+Display:
+
+* Candidate information
+* Skills
+* Projects
+* Technologies
+* Matching jobs
+
+Example:
+
+```text
+Mayuri Lad
+Senior Frontend Developer
+9+ years experience
+
+Skills
+React
+TypeScript
+JavaScript
+Angular
+Redux
+Tailwind CSS
+
+Projects
+
+Airbnb Clone
+Kanban Application
+Resume Management System
+
+Technologies
+React
+TypeScript
+Vite
+Tailwind CSS
+Node.js
+```
+
+Include a prominent:
+
+```text
+Find Matching Jobs
+```
+
+action.
+
+---
+
+# 9. Screen 4 — Job Explorer
+
+Route:
+
+```text
+/jobs
+```
+
+Display:
+
+* Job cards
+* Job title
+* Company
+* Location
+* Experience range
+* Required skills
+
+Include:
+
+* Search
+* Skill filtering
+* Company filtering
+* Loading state
+* Empty state
+
+---
+
+# 10. Screen 5 — Job Details
+
+Route:
+
+```text
+/jobs/:id
+```
+
+Display:
+
+* Job title
+* Company
+* Description
+* Required skills
+* Experience range
+* Location
+* Employment type
+
+Add:
+
+```text
+Find Matching Candidates
+```
+
+button.
+
+Show candidates ranked by number/percentage of matching skills.
+
+---
+
+# 11. Screen 6 — Job Recommendation
+
+This is the most important feature.
+
+When a candidate clicks:
+
+```text
+Find Matching Jobs
+```
+
+execute a graph query.
+
+Display:
+
+```text
+Recommended Jobs
+
+Senior React Developer
+92% Match
+
+Matched skills:
+✓ React
+✓ TypeScript
+✓ JavaScript
+✓ Redux
+✓ REST API
+
+Missing skills:
+○ GraphQL
+
+Why this match?
+The candidate shares 5 of 6 required skills.
+```
+
+Calculate the match score based on graph relationships.
+
+Do not fake the results on the frontend.
+
+The backend must calculate them from CognoDB.
+
+---
+
+# 12. Candidate Recommendation
+
+Similarly, from a Job Details page:
+
+```text
+Find Matching Candidates
+```
+
+Show:
+
+```text
+Top Candidates
+
+1. Mayuri Lad       92%
+2. Priya Shah       88%
+3. Rahul Patel      81%
+```
+
+Explain matched and missing skills.
+
+---
+
+# 13. Graph Explorer
+
+Add a route:
+
+```text
+/graph
+```
+
+Create an interactive graph visualization.
+
+Use a suitable lightweight graph visualization library if necessary.
+
+The graph should show:
+
+```text
+Candidate
+    |
+    | HAS_SKILL
+    ↓
+  Skill
+    |
+    | REQUIRED_BY
+    ↓
+   Job
+    |
+    | POSTED_BY
+    ↓
+ Company
+```
+
+Users should be able to:
+
+* Select a candidate
+* Select a job
+* View connected nodes
+* Click nodes
+* See node details
+
+Keep the graph visualization understandable rather than trying to display the entire database at once.
+
+---
+
+# 14. Important Cypher Queries
+
+Create a dedicated directory:
+
+```text
+server/src/database/queries/
+```
+
+Store Cypher queries separately.
+
+At minimum implement these queries.
+
+## Query 1 — Candidate skills
+
+```cypher
+MATCH (c:Candidate)-[:HAS_SKILL]->(s:Skill)
+WHERE c.id = $candidateId
+RETURN s
+ORDER BY s.name
+```
+
+## Query 2 — Candidate technologies through projects
+
+This must be a multi-hop traversal.
+
+```cypher
+MATCH (c:Candidate)-[:WORKED_ON]->(p:Project)-[:USES]->(t:Technology)
+WHERE c.id = $candidateId
+RETURN DISTINCT t
+ORDER BY t.name
+```
+
+## Query 3 — Matching jobs
+
+```cypher
+MATCH (c:Candidate)-[:HAS_SKILL]->(s:Skill)<-[:REQUIRES]-(j:Job)
+WHERE c.id = $candidateId
+WITH c, j, collect(DISTINCT s) AS matchedSkills
+MATCH (j)-[:REQUIRES]->(required:Skill)
+WITH c, j, matchedSkills, collect(DISTINCT required) AS requiredSkills
+RETURN
+    j,
+    matchedSkills,
+    requiredSkills,
+    size(matchedSkills) AS matchedCount,
+    size(requiredSkills) AS requiredCount,
+    round(toFloat(size(matchedSkills)) / size(requiredSkills) * 100) AS matchScore
+ORDER BY matchScore DESC
+```
+
+Make sure the query is compatible with CognoDB/openCypher.
+
+If any syntax needs adjustment based on CognoDB compatibility, adapt it rather than forcing unsupported Neo4j-specific syntax.
+
+## Query 4 — Matching candidates for a job
+
+Implement the reverse traversal:
+
+```text
+Candidate → Skill ← Job
+```
+
+Rank candidates by matching skills.
+
+## Query 5 — Related skills
+
+Given a candidate's existing skill, find related skills:
+
+```text
+Candidate
+→ HAS_SKILL
+→ Skill
+→ RELATED_TO
+→ Skill
+```
+
+Use this to display:
+
+```text
+Skills you may want to learn
+```
+
+---
+
+# 15. Parameterized Queries
+
+Every Cypher query MUST use parameters.
+
+Correct:
+
+```ts
+session.run(query, {
+  candidateId
+});
+```
+
+Never do:
+
+```ts
+session.run(`
+  MATCH (c:Candidate {id: '${candidateId}'})
+`);
+```
+
+There must be no string concatenation for user-controlled values.
+
+---
+
+# 16. Database Layer
+
+Create a clean database layer.
+
+Example structure:
+
+```text
+server/
+  src/
+    config/
+      env.ts
+
+    database/
+      driver.ts
+      seed.ts
+      queries/
+        candidateQueries.ts
+        jobQueries.ts
+        recommendationQueries.ts
+        graphQueries.ts
+
+    services/
+      candidateService.ts
+      jobService.ts
+      recommendationService.ts
+      graphService.ts
+
+    controllers/
+      candidateController.ts
+      jobController.ts
+      recommendationController.ts
+
+    routes/
+      candidateRoutes.ts
+      jobRoutes.ts
+      recommendationRoutes.ts
+
+    middleware/
+      errorHandler.ts
+
+    app.ts
+    server.ts
+```
+
+Do not put Cypher queries directly inside React components.
+
+---
+
+# 17. Environment Variables
+
+Use:
+
+```text
+COGNODB_URI=
+COGNODB_USERNAME=cognodb
+COGNODB_PASSWORD=
+PORT=5000
+```
+
+Never commit credentials.
+
+Create:
+
+```text
+.env.example
+```
+
+Example:
+
+```text
+COGNODB_URI=bolt+s://your-instance.databases.cognodb.cloud
+COGNODB_USERNAME=cognodb
+COGNODB_PASSWORD=your-password
+PORT=5000
+```
+
+Add `.env` to `.gitignore`.
+
+---
+
+# 18. Database Connection
+
+Use the official Neo4j JavaScript driver.
+
+Create a reusable driver instance.
+
+Implement:
+
+* Connection initialization
+* Connection verification
+* Graceful shutdown
+* Database error handling
+
+The application must not crash with an unclear stack trace when CognoDB is unavailable.
+
+---
+
+# 19. Seed Data
+
+Create:
+
+```text
+server/src/database/seed.ts
+```
+
+The seed script should create realistic data.
+
+Minimum recommended dataset:
+
+```text
+20+ Candidates
+15+ Jobs
+30+ Skills
+8+ Companies
+15+ Projects
+20+ Technologies
+```
+
+Create enough relationships to make graph traversal meaningful.
+
+Include overlapping skills so recommendation results are interesting.
+
+Do not generate completely random meaningless data.
+
+Create realistic frontend/software-engineering examples.
+
+Example companies:
+
+```text
+TechNova
+CloudScale
+DataBridge
+FinEdge
+HealthStack
+TravelSphere
+```
+
+Example jobs:
+
+```text
+Senior React Developer
+Frontend Architect
+UI Engineer
+Senior TypeScript Developer
+Full Stack Engineer
+Frontend Platform Engineer
+```
+
+---
+
+# 20. API Design
+
+Create REST endpoints such as:
+
+```text
+GET /api/health
+
+GET /api/candidates
+GET /api/candidates/:id
+GET /api/candidates/:id/skills
+GET /api/candidates/:id/technologies
+GET /api/candidates/:id/recommendations
+
+GET /api/jobs
+GET /api/jobs/:id
+GET /api/jobs/:id/recommendations
+
+GET /api/graph/candidate/:id
+GET /api/graph/job/:id
+GET /api/skills/:id/related
+```
+
+Return consistent JSON responses.
+
+Example:
+
+```json
+{
+  "data": [],
+  "error": null
+}
+```
+
+For errors:
+
+```json
+{
+  "data": null,
+  "error": {
+    "message": "Unable to load candidate recommendations"
+  }
+}
+```
+
+---
+
+# 21. Frontend Architecture
+
+Use feature-oriented organization.
+
+Example:
+
+```text
+client/
+  src/
+    components/
+      ui/
+      layout/
+
+    features/
+      candidates/
+        components/
+        hooks/
+        api/
+        types/
+
+      jobs/
+        components/
+        hooks/
+        api/
+        types/
+
+      recommendations/
+        components/
+        hooks/
+        api/
+        types/
+
+      graph/
+        components/
+        hooks/
+        api/
+
+    pages/
+      Dashboard.tsx
+      Candidates.tsx
+      CandidateDetails.tsx
+      Jobs.tsx
+      JobDetails.tsx
+      GraphExplorer.tsx
+
+    lib/
+      api.ts
+
+    routes/
+
+    App.tsx
+    main.tsx
+```
+
+Keep components reusable.
+
+Avoid huge components.
+
+---
+
+# 22. UI Design
+
+The UI should look like a modern SaaS/product application.
+
+Use:
+
+* Clean dashboard
+* Sidebar navigation
+* Responsive layout
+* Cards
+* Tables where appropriate
+* Badges for skills
+* Progress indicators for match scores
+* Modal/drawer for relationship details
+* Proper typography
+* Consistent spacing
+* Empty states
+* Loading skeletons
+* Error states
+* Toast notifications where appropriate
+
+Use a restrained professional design.
+
+Do not make it look like a basic developer CRUD dashboard.
+
+---
+
+# 23. Loading and Error States
+
+Every API-driven screen must handle:
+
+### Loading
+
+Show skeleton/loading UI.
+
+### Empty
+
+Example:
+
+```text
+No matching jobs found.
+
+Try adding more skills to the candidate profile.
+```
+
+### Error
+
+Example:
+
+```text
+We couldn't load this information.
+
+The graph database may be temporarily unavailable.
+
+Retry
+```
+
+Do not expose raw database errors to users.
+
+---
+
+# 24. Graph Database Error Handling
+
+If CognoDB is unavailable:
+
+```text
+GET /api/health
+```
+
+should report an unhealthy state.
+
+The frontend should display an appropriate message.
+
+Example:
+
+```text
+Database connection unavailable
+Some graph features may be temporarily unavailable.
+```
+
+The application must fail gracefully.
+
+---
+
+# 25. README
+
+Create a comprehensive README containing:
+
+## Project overview
+
+## Features
+
+## Tech stack
+
+## Architecture
+
+Include an architecture diagram.
+
+## Graph data model
+
+Include a Mermaid diagram.
+
+Example:
+
+```mermaid
+graph TD
+    Candidate -->|HAS_SKILL| Skill
+    Candidate -->|WORKED_ON| Project
+    Project -->|USES| Technology
+    Job -->|REQUIRES| Skill
+    Job -->|POSTED_BY| Company
+    Skill -->|RELATED_TO| Skill
+```
+
+## Why a graph database?
+
+Explain clearly.
+
+## Data model explanation
+
+Explain every node and relationship.
+
+## Main Cypher queries
+
+Explain the important queries and why they are graph-oriented.
+
+## Setup CognoDB
+
+Explain:
+
+1. Create CognoDB account
+2. Create free instance
+3. Copy Bolt URI
+4. Copy password
+5. Configure `.env`
+
+## Local setup
+
+Explain:
+
+```bash
+npm install
+npm run seed
+npm run dev
+```
+
+for both frontend and backend as appropriate.
+
+## Environment variables
+
+## Deployment instructions
+
+## Screenshots
+
+Add screenshots of:
+
+* Dashboard
+* Candidate profile
+* Job recommendations
+* Graph explorer
+* Error state
+
+## Demo link
+
+Add a placeholder:
+
+```text
+Live Demo: <deployment-url>
+```
+
+## Screen recording
+
+Add a placeholder:
+
+```text
+Demo Video: <video-url>
+```
+
+---
+
+# 26. Testing
+
+Add basic tests for the most important logic.
+
+At minimum test:
+
+* Recommendation score calculation
+* Candidate recommendation API
+* Job recommendation API
+* Invalid candidate ID
+* Database unavailable handling
+
+Do not spend excessive time building a huge test suite.
+
+---
+
+# 27. Code Quality Rules
+
+Follow these rules:
+
+* TypeScript strict mode
+* No `any` unless absolutely necessary
+* No hardcoded secrets
+* No hardcoded recommendation results
+* No Cypher string concatenation
+* No database access from frontend
+* No giant React components
+* No duplicated API logic
+* Meaningful names
+* Small reusable functions
+* Clear error handling
+* Avoid unnecessary abstractions
+* Keep dependencies minimal
+
+---
+
+# 28. AI-Assisted Development
+
+Create a file:
+
+```text
+.ai/project-context.md
+```
+
+Document:
+
+* Project purpose
+* Architecture
+* Graph model
+* Important decisions
+* Coding conventions
+
+Also create:
+
+```text
+.ai/coding-standards.md
+```
+
+Document frontend/backend/database conventions.
+
+If Antigravity supports agent configuration, create useful agents such as:
+
+```text
+frontend-engineer
+backend-engineer
+graph-database-specialist
+ui-ux-reviewer
+code-reviewer
+performance-reviewer
+```
+
+Do not create unnecessary agents.
+
+---
+
+# 29. Important Implementation Principle
+
+Do not implement everything at once.
+
+Implement in this order:
+
+### Phase 1
+
+Project setup.
+
+### Phase 2
+
+CognoDB connection.
+
+### Phase 3
+
+Graph schema and seed data.
+
+### Phase 4
+
+Cypher queries.
+
+### Phase 5
+
+Backend API.
+
+### Phase 6
+
+Frontend layout and routing.
+
+### Phase 7
+
+Candidate and Job screens.
+
+### Phase 8
+
+Recommendation functionality.
+
+### Phase 9
+
+Graph Explorer.
+
+### Phase 10
+
+Error/loading/empty states.
+
+### Phase 11
+
+UI polish.
+
+### Phase 12
+
+README, screenshots and deployment preparation.
+
+After each phase, verify the application before continuing.
+
+---
+
+# 30. Final Acceptance Criteria
+
+Before considering the implementation complete, verify:
+
+* [ ] CognoDB connection works
+* [ ] Seed script works
+* [ ] Real graph data exists
+* [ ] At least one 2+ hop traversal works
+* [ ] Recommendation is calculated from graph relationships
+* [ ] Queries are parameterized
+* [ ] No secrets committed
+* [ ] Candidate explorer works
+* [ ] Candidate details works
+* [ ] Job explorer works
+* [ ] Job details works
+* [ ] Job recommendations work
+* [ ] Candidate recommendations work
+* [ ] Graph Explorer works
+* [ ] Loading states exist
+* [ ] Empty states exist
+* [ ] Error states exist
+* [ ] Database failure is handled gracefully
+* [ ] Responsive UI works
+* [ ] README is complete
+* [ ] Architecture diagram exists
+* [ ] Graph model diagram exists
+* [ ] Screenshots are included
+* [ ] Application can be deployed
+* [ ] Demo recording can be created
+* [ ] `.env` is excluded from Git
+* [ ] Code can be explained clearly in an interview
+
+Do not mark the project complete until all acceptance criteria have been checked.
+
+Start by creating the project structure and implementation plan. Then implement Phase 1 and Phase 2 first. After completing each phase, verify the result before proceeding.
