@@ -10,6 +10,7 @@ coverage/
 dist/
 build/
 .dist/
+*.zip
 
 # Environment variables & secrets (CRITICAL - Never commit credentials)
 .env

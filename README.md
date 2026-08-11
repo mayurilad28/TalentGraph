@@ -10,8 +10,7 @@
 ---
 
 ## 🌟 Demo & Submission Links
-- **Live Hosted Application**: `https://talentgraph-demo.vercel.app` *(or your deployed Vercel link)*
-- **Demo Screen Recording**: `https://www.loom.com/share/your-demo-recording-id`
+- **Live Hosted Application**: `https://talentgraph-demo.vercel.app`
 - **GitHub Repository**: `https://github.com/mayurilad28/TalentGraph`
 
 ---
@@ -25,8 +24,6 @@
 6. [CognoDB Cloud Setup Guide](#-cognodb-cloud-setup-guide)
 7. [Local Setup & Seed Instructions](#-local-setup--seed-instructions)
 8. [Testing & Verification](#-testing--verification)
-9. [Deployment Guide](#-deployment-guide)
-10. [Application Screenshots](#-application-screenshots)
 
 ---
 
@@ -311,25 +308,68 @@ npm run build
 
 ## 🚀 Deployment Guide
 
-### Deploy Frontend (Vercel)
-1. Push your repository to GitHub.
-2. Import the repository in [Vercel](https://vercel.com).
-3. Set **Root Directory** to `client`.
-4. Add environment variable:
-   - `VITE_API_URL`: URL of your deployed backend (e.g. `https://talentgraph-api.onrender.com/api`).
-5. Deploy.
+### Option A: Fullstack Deployment on Vercel (Recommended — Single Deploy)
 
-### Deploy Backend (Render / Railway)
-1. Create a new Web Service on [Render](https://render.com) or [Railway](https://railway.app).
-2. Set **Root Directory** to `server`.
-3. Set **Build Command**: `npm install && npm run build`
-4. Set **Start Command**: `npm start`
-5. Add Environment Variables:
-   - `COGNODB_URI`: `bolt+s://<instance-id>.databases.cognodb.cloud`
-   - `COGNODB_USERNAME`: `cognodb`
-   - `COGNODB_PASSWORD`: `<your-password>`
-   - `PORT`: `5000`
-   - `NODE_ENV`: `production`
+TalentGraph is pre-configured with `vercel.json` and a serverless Express adapter (`api/index.ts`) so you can deploy both the React frontend and backend API together in 1 click:
+
+1. **Push your repository** to GitHub:
+   ```bash
+   git add .
+   git commit -m "Configure fullstack Vercel deployment"
+   git push origin main
+   ```
+2. **Import into Vercel**:
+   - Go to [Vercel](https://vercel.com) and click **Add New... ➔ Project**.
+   - Import your repository.
+   - Leave **Root Directory** as `./` (default).
+3. **Configure Environment Variables in Vercel**:
+   - Navigate to **Settings ➔ Environment Variables** and add:
+     - `COGNODB_URI`: `bolt+s://<instance-id>.databases.cognodb.cloud`
+     - `COGNODB_USERNAME`: `cognodb`
+     - `COGNODB_PASSWORD`: `<your-cognodb-password>`
+     - `NODE_ENV`: `production`
+4. **Deploy**:
+   - Click **Deploy** (or **Redeploy**).
+   - Your frontend SPA will be live at `https://your-project.vercel.app/` and API endpoints will be live at `https://your-project.vercel.app/api/health`.
+
+---
+
+### Option B: Split Deployment (Vercel Frontend + Render/Railway Backend)
+
+If you prefer hosting the Express backend on a dedicated Node.js server:
+
+1. **Deploy Backend (Render / Railway)**:
+   - Create a Web Service pointing to the `server` root directory.
+   - Build Command: `npm install && npm run build`
+   - Start Command: `npm start`
+   - Set Environment Variables: `COGNODB_URI`, `COGNODB_USERNAME`, `COGNODB_PASSWORD`, `PORT=5000`.
+2. **Deploy Frontend (Vercel)**:
+   - Set **Root Directory** to `client`.
+   - Add Environment Variable: `VITE_API_URL=https://your-backend.onrender.com/api`.
+   - Deploy.
+
+---
+
+
+
+**To run the unzipped project**:
+```bash
+# 1. Install dependencies
+npm run install:all
+
+# 2. Setup environment variables
+# Windows (CMD):
+copy .env.example .env
+# Mac / Linux / PowerShell:
+# cp .env.example .env
+# Edit .env with your CognoDB credentials
+
+# 3. Seed database (first time)
+npm run seed
+
+# 4. Start local development server
+npm run dev
+```
 
 ---
 
