@@ -10,8 +10,8 @@ const envSchema = z.object({
   COGNODB_URI: z.string().transform((s) => s.trim()).default('bolt://localhost:7687'),
   COGNODB_USERNAME: z.string().transform((s) => s.trim()).default('cognodb'),
   COGNODB_PASSWORD: z.string().transform((s) => s.trim()).default(''),
-  PORT: z.string().transform((s) => Number(s.trim())).default('5000'),
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  PORT: z.union([z.string(), z.number()]).transform((s) => typeof s === 'number' ? s : (Number(String(s).trim()) || 5000)).default(5000),
+  NODE_ENV: z.string().default('production'),
 });
 
 const parsed = envSchema.safeParse(process.env);

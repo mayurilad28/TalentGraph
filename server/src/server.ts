@@ -5,7 +5,7 @@ import { verifyConnection, closeDriver } from './database/driver';
 async function startServer() {
   const app = createApp();
 
-  const server = app.listen(env.PORT, async () => {
+  const server = app.listen(env.PORT, '0.0.0.0', async () => {
     console.log(`\n======================================================`);
     console.log(`🚀 TalentGraph Backend Server running on port ${env.PORT}`);
     console.log(`🔗 API Base: http://localhost:${env.PORT}/api`);
